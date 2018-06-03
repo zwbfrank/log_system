@@ -1,0 +1,21 @@
+{% extends 'user_manage/index.html' %}
+
+{% block contentup %}
+    <form action="{% url 'log_collect:config' %}" method="POST">
+        {% csrf_token %}
+        <h2 class="form-signin-heading">System Setting</h2>
+        <div class="input-group input-group-lg">
+            <span class="input-group-addon" id="sizing-addon1">log path</span>
+            <input type="text" class="form-control" placeholder="log path" name="path" aria-describedby="sizing-addon1">
+        </div>
+        <div class="input-group input-group-lg">
+            <span class="input-group-addon" id="sizing-addon1">log type</span>
+            <input type="text" class="form-control" placeholder="logtype" name="logtype" aria-describedby="sizing-addon1">
+        </div>
+        <div class="input-group input-group-lg">
+            <span class="input-group-addon" id="sizing-addon1">log level</span>
+            <input type="text" class="form-control" placeholder="log level" name="level" aria-describedby="sizing-addon1">
+        </div>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Submit</button>           
+    </form>
+{% endblock %}

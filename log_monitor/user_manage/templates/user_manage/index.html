@@ -1,0 +1,23 @@
+{% extends 'user_manage/base.html' %}
+
+{% block navbar %}
+        <a class="navbar-brand" href="{% url 'user_manage:index' %}">HOME</a>
+        <a class="navbar-brand" href="#">ABOUT</a>
+        <a class="navbar-brand" href="{% url 'log_collect:config' %}">Setting</a>
+        <a class="navbar-brand" href="#">Sign in</a>
+        <div class="navbar-brand">or</div>
+        <a class="navbar-brand" href="#">Sign up</a>
+
+
+    <!-- <button type="submit" class="btn btn-success">Sign in</button> -->
+{% endblock %}
+
+{% block contentup %}
+    <div>
+        <h1>welcome! {{ time }}</h1>
+        <p><h2>TODAY</h2></p>
+        <p><h3>is the first day of the rest of your</h3><h2>LIFE !</h2></p>
+    </div>
+{% endblock %}
+
+
