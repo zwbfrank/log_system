@@ -17,74 +17,16 @@ from datetime import datetime
 
 import configparser
 
-from user_manage.models import Log
+from user_manage.models import Log,InfoLog,ErrorLog
 
 import logging
 from logging.handlers import TimedRotatingFileHandler,RotatingFileHandler
 from random import Random
 
-    # hdlr = logging.handlers.RotatingFileHandler(LOG_FILE,maxBytes=1024*1024,backupCount=40)或
-    # hdlr = logging.handlers.TimedRotatingFileHandler(LOG_FILE,when='M',interval=1,backupCount=40)
-# logger = logging.getLogger('mylogger')
-# logger.setLevel(logging.)
-
-# def log_info():
-#     logger = logging.getLogger('mylogger')
-#     logger.setLevel(logging.INFO)
-#     th = TimedRotatingFileHandler('test.log',when='S',interval=10,backupCount=10)
-#     formatter = logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s')
-#     th.setFormatter(formatter)
-#     logger.addHandler(th)
-#     while True:
-#         logger.info('test message')
-#         sleep(1)
 
 
-# def persude_error_code(path,spcnum):
-#     while True:
-#         count = 1
-#         if os.path.exists(path):
-#             logging.basicConfig(path)
-#             logger = logging.getLogger()
-#             while True:
-#                 if os.path.getsize(path)>=spcnum:
-#                     break
-#                 msg='test message '+str(count)+'.'
-#                 logger.error(msg)
-#                 count = count+1
-#                 random_sec = random_time(100)
-#                 sleep(random_sec)
-#             os.move(path,direct)
-#             path = os.mknod(filename)
-#         sleep(5)
-
-
-# def info(path):
-#     pass
-
-
-
-# def logging_out(log_path):
-
-
-#     logging.basicConfig(level=logging.ERROR,
-#                         format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
-#                         datefmt='%b %d %Y %H:%M:%S',
-#                         filename=log_path,
-#                     )
-#     logger = logging.getLogger()
-#     logger
-
-    
-#     while True:
-        
-#     msg = ''
-#     logger.error(msg)
-
-
-
-pattern_error = re.compile(r'error.log$')
-pattern_info =  re.compile(r'info.log$')
+pattern_error = re.compile(r'.*error\.log$')
+pattern_info =  re.compile(r'.*info\.log$')
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -116,44 +58,7 @@ class MyConfigParser(configparser.ConfigParser):
         with open(self.config_file,'w') as config_file:
             self.write(config_file)
 
-
-
-# class Config():
-
-#     def __init__(self, config_file="log_system_config.ini"):
-#         file_path = os.path.join(BASE_DIR,config_file)
-#         self.cfg = configparser.ConfigParser()
-#         self.cfg.read(file_path)
-
-#     def get_sections(self): 
-#         return self.cfg.sections()
-
-#     def hasSection(self,section):
-#         sections = get_sections()
-#         if section in sections:
-#             return True
-#         return False
-
-#     def get_options(self, section):
-#         return self.cfg.options(section)
-
-#     def get_content(self, section):
-#         result = {}
-#         for option in self.get_options(section):
-#             value = self.cfg.get(section, option)
-#             result[option] = int(value) if value.isdigit() else value
-#         return result
-
-#     def add_sections(self,section):
-#         self.cfg[section] = {}
-#         return self.cfg[section]
-
-#     def add_options(self,section,option,value):
-#         option = self.add_sections(section)
-#         option[str(option)] = value
-
-
-    
+  
 class BaseLog(object):
     def __init__(self,log_type='system',path='/var/log/syslog',level='sys',file_name=None,file_size=None):
         self.log_type = log_type
@@ -178,14 +83,14 @@ class LogCollect(BaseLog):
         file_list = os.listdir(self.path)
         if file_list:
             for file in file_list:
-                if re.match(pattern_info,file):
+                if pattern_info.match(file):
                     return file
 
     def get_error_file(self):
         file_list = os.listdir(self.path)
         if file_list:
             for file in file_list:
-                if re.match(pattern_error,file):
+                if pattern_error.match(file):
                     return file
 
     def get_sys_file(self):
@@ -200,10 +105,19 @@ class LogCollect(BaseLog):
 
     def read_info_file(self):
         self.file_name = self.get_info_file()
-        if file:
-            with open(os.path.join(self.path,file)) as f:
+        if self.file_name:
+            with open(os.path.join(self.path,self.file_name)) as f:
                 lines = self.save_offset(f)
-        return lines
+                if lines:
+                    return lines
+
+    def read_error_file(self):
+        self.file_name = self.get_error_file()
+        if self.file_name:
+            with open(os.path.join(self.path,self.file_name)) as f:
+                lines = self.save_offset(f)
+                if lines:
+                    return lines
 
     def insert_syslog(self):
         lines = self.read_sys_file()
@@ -215,46 +129,44 @@ class LogCollect(BaseLog):
             log.create_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             log.save()
 
-    def insert(self):
+    def insert_info(self):
         lines = self.read_info_file()
         for line in lines:
-            log = Log()
+            log = InfoLog()
             log.log_type = self.log_type
             log.level = self.level
             log.content = line
             log.create_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             log.save()
 
+    def insert_error(self):
+        lines = self.read_error_file()
+        for line in lines:
+            log = ErrorLog()
+            log.log_type = self.log_type
+            log.level = self.level
+            log.content = line
+            log.create_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            log.save()
+        
     def reset_offset(self):
         self.cfg.remove_option('Offset',str(self.file_name))
 
     def is_newfile(self,offset):
-        # offset_dict = self.cfg.get_conf_dict('Offset')
-        if os.path.isfile(self.path):
-            self.file_name = os.path.basename(self.path)
-            # offset = offset_dict[str(self.file_name)]
-            if int(offset) > os.path.getsize(self.path):
-                return True
-            else:
-                # print(str(offset)+' '+str(os.path.getsize(self.path)))
-                return False
-        # file_path = os.path.join(self.path,self.file_name)
-        # file_size = os.path.getsize(file_path)
-        # if int(offset) > os.path.getsize(file_size):
-        #     return True
-        # return False
+        file_path = os.path.join(self.path,self.file_name)
+        if int(offset) > os.path.getsize(file_path):
+            return True
+        return False
 
     def is_new_syslog(self,offset):
         if os.path.isfile(self.path):
-            self.filename = os.path.basename(self.path)
+            self.file_name = os.path.basename(self.path)
             if int(offset) > os.path.getsize(self.path):
                 return True
         return False
 
     def save_sys_offset(self,f_obj):
         self.cfg = MyConfigParser()
-        # if is_newfile():
-        #     self.reset_offset()
         if self.cfg.has_section('Offset'):
             if self.cfg.has_option('Offset',str(self.file_name)):
                 offset = self.cfg.get('Offset',str(self.file_name))
@@ -263,11 +175,12 @@ class LogCollect(BaseLog):
                     offset = f_obj.tell()
                     self.cfg['Offset'][str(self.file_name)] = str(offset)
                     self.cfg.auto_write()
-                f_obj.seek(int(offset))
-                lines = f_obj.readlines()
-                offset = f_obj.tell()
-                self.cfg['Offset'][str(self.file_name)] = str(offset)
-                self.cfg.auto_write()
+                else:
+                    f_obj.seek(int(offset))
+                    lines = f_obj.readlines()
+                    offset = f_obj.tell()
+                    self.cfg['Offset'][str(self.file_name)] = str(offset)
+                    self.cfg.auto_write()
             else:
                 lines = f_obj.readlines()
                 offset = f_obj.tell()
@@ -282,23 +195,20 @@ class LogCollect(BaseLog):
         return lines
 
     def save_offset(self,f_obj):
-        # cfg = MyConfigParser()
-        # if is_newfile():
-        #     self.reset_offset()
         if self.cfg.has_section('Offset'):
             if self.cfg.has_option('Offset',str(self.file_name)):
                 offset = self.cfg.get('Offset',str(self.file_name))
-                # if is_newfile(offset):
-                #     self.reset_offset()
-                #     lines = f_obj.readlines()
-                #     offset = f_obj.tell()
-                #     self.cfg['Offset'][str(self.file_name)] = str(offset)
-                #     self.cfg.auto_write()
-                f_obj.seek(int(offset))
-                lines = f_obj.readlines()
-                offset = f_obj.tell()
-                self.cfg['Offset'][str(self.file_name)] = str(offset)
-                self.cfg.auto_write()
+                if self.is_newfile(offset):
+                    lines = f_obj.readlines()
+                    offset = f_obj.tell()
+                    self.cfg['Offset'][str(self.file_name)] = str(offset)
+                    self.cfg.auto_write()
+                else:
+                    f_obj.seek(int(offset))
+                    lines = f_obj.readlines()
+                    offset = f_obj.tell()
+                    self.cfg['Offset'][str(self.file_name)] = str(offset)
+                    self.cfg.auto_write()
             else:
                 lines = f_obj.readlines()
                 offset = f_obj.tell()

@@ -2,15 +2,14 @@
 
 
 {% block contentup %}
+
     <div>
 
         <ul>
-            <h1><li><a style="font-size: medium;" href="{% url 'log_collect:system' %}">System</a></li></h1>
-            <li><a href="#">Info</a></li>
-            <li><a href="#">Error</a></li>
+            <li><a href="{% url 'log_collect:system' %}"><strong>System</strong></a></li>
+            <li><a href="{% url 'log_collect:info' %}"><strong>Info</strong></a></li>
+            <li><a href="{% url 'log_collect:error' %}"><strong>Error</strong></a></li>
         </ul>
     </div>
 
 {% endblock %}
-
-

@@ -22,5 +22,7 @@ urlpatterns = [
     url(r'^$',views.collect_index,name='collect_index'),
     url(r'^config/',views.config,name='config'),
     url(r'^system_display/',views.system,name='system'),
+    url(r'^info_display/',views.info,name='info'),
+    url(r'^error_display/',views.error,name='error'),
 
 ]

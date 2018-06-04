@@ -26,7 +26,7 @@ class Log(models.Model):
     	db_table = 'log'
 
 
-class InFoLog(models.Model):
+class InfoLog(models.Model):
     log_type = models.CharField(max_length=50)
     level = models.CharField(max_length=50)
     content = models.TextField(max_length=225)

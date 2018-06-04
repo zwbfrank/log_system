@@ -1,0 +1,21 @@
+{% extends 'log_collect/base_log_display.html' %}
+
+{% block contentup %}
+    <div>
+        <form action="{% url 'log_collect:error' %}" method="POST">
+        {% csrf_token %}
+        <div class="input-group input-group-lg">
+            <span class="input-group-addon" id="sizing-addon1">log type</span>
+            <input type="text" class="form-control" placeholder="log type" name="logtype" aria-describedby="sizing-addon1">
+        </div>
+            <button class="btn btn-lg btn-primary btn-block" type="submit">Errorlog Refresh</button>  
+        </form>
+    </div>
+
+    {% for log in logs %}
+        <li>{{ log }}</li>
+    {% empty %}
+        <p>Sorry,no log was read.</p>
+    {% endfor %}
+
+{% endblock %}
