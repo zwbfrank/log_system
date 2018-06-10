@@ -4,9 +4,9 @@
         <a class="navbar-brand" href="{% url 'user_manage:index' %}">HOME</a>
         <a class="navbar-brand" href="#">ABOUT</a>
         <a class="navbar-brand" href="{% url 'log_collect:config' %}">Setting</a>
-        <a class="navbar-brand" href="#">Sign in</a>
+        <a class="navbar-brand" href="{% url 'user_manage:login' %}">Sign in</a>
         <div class="navbar-brand">or</div>
-        <a class="navbar-brand" href="#">Sign up</a>
+        <a class="navbar-brand" href="{% url 'user_manage:logout' %}">Log out</a>
 
 
     <!-- <button type="submit" class="btn btn-success">Sign in</button> -->

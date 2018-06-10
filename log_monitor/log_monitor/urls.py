@@ -16,6 +16,7 @@ Including another URLconf
 from django.conf.urls import url,include
 from django.contrib import admin
 from user_manage import views
+# from django.contrib.auth import urls as auth_urls
 # from log_collect import views
 
 # from django.contrib.auth import urls as auth_urls
@@ -23,8 +24,9 @@ from user_manage import views
  
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
     url(r'^$',views.index,name='index'),
     url(r'^user_manage/', include('user_manage.urls',namespace='user_manage')),
     url(r'^log_collect/', include('log_collect.urls',namespace='log_collect')),
+    url(r'^admin/', admin.site.urls),
+
 ]

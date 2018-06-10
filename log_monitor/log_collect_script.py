@@ -121,33 +121,42 @@ class LogCollect(BaseLog):
 
     def insert_syslog(self):
         lines = self.read_sys_file()
-        for line in lines:
-            log = Log()
-            log.log_type = self.log_type
-            log.level = self.level
-            log.content = line
-            log.create_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            log.save()
+        if lines:
+            for line in lines:
+                log = Log()
+                log.log_type = self.log_type
+                log.level = self.level
+                log.content = line
+                log.create_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                log.save()
+        else:
+            pass
 
     def insert_info(self):
         lines = self.read_info_file()
-        for line in lines:
-            log = InfoLog()
-            log.log_type = self.log_type
-            log.level = self.level
-            log.content = line
-            log.create_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            log.save()
+        if lines:
+            for line in lines:
+                log = InfoLog()
+                log.log_type = self.log_type
+                log.level = self.level
+                log.content = line
+                log.create_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                log.save()
+        else:
+            pass
 
     def insert_error(self):
         lines = self.read_error_file()
-        for line in lines:
-            log = ErrorLog()
-            log.log_type = self.log_type
-            log.level = self.level
-            log.content = line
-            log.create_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            log.save()
+        if lines:
+            for line in lines:
+                log = ErrorLog()
+                log.log_type = self.log_type
+                log.level = self.level
+                log.content = line
+                log.create_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                log.save()
+        else:
+            pass
         
     def reset_offset(self):
         self.cfg.remove_option('Offset',str(self.file_name))
@@ -230,8 +239,8 @@ def main():
     
 
 if __name__ == '__main__':
-    # main()
-    print(BASE_DIR)
+    log = Log.objects.filter(create_at=datetime.now())
+    print(log)
 
 
 

@@ -19,7 +19,8 @@ from logging.handlers import TimedRotatingFileHandler,RotatingFileHandler
 def log_error():
     logger = logging.getLogger('mylogger')
     logger.setLevel(logging.ERROR)
-    th = TimedRotatingFileHandler('/opt/test_project/test_log_type_1/test_1_error.log',when='S',interval=10,backupCount=10)
+    th = TimedRotatingFileHandler('/opt/test_project/test_log_type_1/test_1_error.log',
+                                    when='S',interval=10,backupCount=10)
     formatter = logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s')
     th.setFormatter(formatter)
     logger.addHandler(th)
