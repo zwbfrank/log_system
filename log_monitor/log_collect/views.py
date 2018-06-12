@@ -27,6 +27,7 @@ def collect_index(request):
 
 @auth
 def config(request):
+    message = ''
     context = {}
     if request.method == 'GET':
         return render(request,'log_collect/config.html')
@@ -36,6 +37,9 @@ def config(request):
             log_type = request.POST.get('logtype')
             path = request.POST.get('path')
             level = request.POST.get('level')
+            if log_type=='' or path=='' or level=='':
+                message = 'please fill out the form'
+                return render(request,'log_collect/config.html',{'msg':message})               
             if not cfg.has_section(log_type):
                 cfg[str(log_type)] = {
                     'path' : path,
@@ -43,42 +47,52 @@ def config(request):
                     'level': level,
                 }
                 cfg.auto_write()
-            lc = LogCollect(str(log_type))
-            if level == 'sys':
-                lc.insert_syslog()
-            elif level == 'info':
-                lc.insert_info()
-            elif level == 'error':
-                lc.insert_error()
+            else:
+                lc = LogCollect(str(log_type))
+                if level == 'sys':
+                    lc.insert_syslog()
+                elif level == 'info':
+                    lc.insert_info()
+                elif level == 'error':
+                    lc.insert_error()
         except Exception as e:
             raise e
+            # message = 'please fill out the form'
+            # return render(request,'log_collect/config.html',{'msg':message})
         return  render(request,'log_collect/collect_index.html')
 
 @auth
 def system(request):
+    message = ''
     logs = Log.objects.order_by('-create_at')[:100]
     context = {'logs': logs}
     if request.method == 'POST':
         # section = request.POST.get('section')
         lc = LogCollect('system')
         lc.insert_syslog()
+        message = 'please wait a moment,is flushing'
         logs = Log.objects.order_by('-create_at')[:100]
-        context = {'logs': logs}
+        context = {'logs': logs,'msg':message}
+        return render(request,'log_collect/system_display.html',context)
+
     return render(request,'log_collect/system_display.html',context)
 
 @auth
 def info(request):
     cfg = MyConfigParser()
     logs = InfoLog.objects.order_by('-create_at')[:100]
+    message = ''
     context = {'logs': logs}
     if request.method == 'POST':
         section = request.POST.get('logtype')
         if not section or section not in cfg.sections():
-            return HttpResponse('<html>please fill correct log type</html')
-        lc = LogCollect(section)
-        lc.insert_info()
-        logs = InfoLog.objects.order_by('-create_at')[:100]
-        context = {'logs': logs}
+            message = 'please fill out this field.'
+            return render(request,'log_collect/info_display.html',{'msg':message})
+        else:
+            lc = LogCollect(section)
+            lc.insert_info()
+            logs = InfoLog.objects.order_by('-create_at')[:100]
+            context = {'logs': logs}
     return render(request,'log_collect/info_display.html',context)
 
 @auth
@@ -89,11 +103,10 @@ def error(request):
     if request.method == 'POST':
         section = request.POST.get('logtype')
         if not section or section not in cfg.sections():
-            return HttpResponse('<html>please fill correct log type</html')
+            message = 'please fill out this field.'
+            return render(request,'log_collect/error_display.html',{'msg':message})
         lc = LogCollect(section)
         lc.insert_error()
         logs = ErrorLog.objects.order_by('-create_at')[:100]
         context = {'logs': logs}
     return render(request,'log_collect/error_display.html',context)
-
-

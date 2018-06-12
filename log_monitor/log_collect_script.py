@@ -28,7 +28,7 @@ from random import Random
 pattern_error = re.compile(r'.*error\.log$')
 pattern_info =  re.compile(r'.*info\.log$')
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class MyConfigParser(configparser.ConfigParser):
     
@@ -129,8 +129,9 @@ class LogCollect(BaseLog):
                 log.content = line
                 log.create_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 log.save()
+            return True
         else:
-            pass
+            return False
 
     def insert_info(self):
         lines = self.read_info_file()
@@ -142,8 +143,9 @@ class LogCollect(BaseLog):
                 log.content = line
                 log.create_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 log.save()
+            return True
         else:
-            pass
+            return False
 
     def insert_error(self):
         lines = self.read_error_file()
@@ -155,8 +157,9 @@ class LogCollect(BaseLog):
                 log.content = line
                 log.create_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 log.save()
+            return True
         else:
-            pass
+            return False
         
     def reset_offset(self):
         self.cfg.remove_option('Offset',str(self.file_name))
@@ -239,8 +242,9 @@ def main():
     
 
 if __name__ == '__main__':
-    log = Log.objects.filter(create_at=datetime.now())
-    print(log)
+    print(BASE_DIR)
+    # log = Log.objects.filter(create_at=datetime.now())
+    # print(log)
 
 
 

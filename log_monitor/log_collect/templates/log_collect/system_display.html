@@ -4,12 +4,15 @@
 	<div>
 		<form action="{% url 'log_collect:system' %}" method="POST">
 			{% csrf_token %}
-			<button class="btn btn-lg btn-primary btn-block" type="submit">Syslog Refresh</button>	
+			<button class="btn btn-lg btn-primary btn-block" type="submit">Syslog Refresh</button>
+			<span>{{ msg }}</span>	
 		</form>
 	</div>
 
 	{% for log in logs %}
 		<li>{{ log }}</li>
+	{% empty %}
+		<p>There is no log for the time.</p>
 	{% endfor %}
 
 {% endblock %}

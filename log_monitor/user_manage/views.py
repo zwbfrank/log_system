@@ -21,8 +21,13 @@ def auth(func):
 
 
 def index(request):
+    user = ''
     time = datetime.now()
-    context = {'time':time}
+    if request.session.get('is_login'):
+        user = request.session.get('username')
+    else:
+        user = 'anybody'
+    context = {'time':time,'user':user}
     return render(request,'user_manage/index.html',context)
 
 
@@ -68,4 +73,4 @@ def logout(request):
         del request.session['username']
     except KeyError:
         pass
-    return HttpResponse('OK')
+    return HttpResponseRedirect('/')
